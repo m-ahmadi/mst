@@ -1,0 +1,7 @@
+/icon "%CMDER_ROOT%\icons\cmder.ico" cmd /k "%ConEmuDir%\..\init.bat" && babel ./src/js/ -d ./dist/js/ -s -w
+/icon "%CMDER_ROOT%\icons\cmder.ico" cmd /k "%ConEmuDir%\..\init.bat" && gulp temp-w
+/icon "%CMDER_ROOT%\icons\cmder.ico" cmd /k "%ConEmuDir%\..\init.bat" && sass ./src/sass/style.scss:./dist/css/style.css --style expanded --sourcemap=auto -w
+/icon "%CMDER_ROOT%\icons\cmder.ico" cmd /k "%ConEmuDir%\..\init.bat" && htmlbilder ./src/html/ -o ./dist/index.html -w
+/icon "%CMDER_ROOT%\icons\cmder.ico" cmd /k "%ConEmuDir%\..\init.bat" && gulp part-w
+/icon "%CMDER_ROOT%\icons\cmder.ico" cmd /k "%ConEmuDir%\..\init.bat" && gulp live
+/icon "%CMDER_ROOT%\icons\cmder.ico" cmd /k "%ConEmuDir%\..\init.bat"
