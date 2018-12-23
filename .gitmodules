@@ -1,0 +1,3 @@
+[submodule "uk"]
+	path = uk
+	url = git@github.com:uikit/uikit.git
