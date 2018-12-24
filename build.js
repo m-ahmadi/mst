@@ -11,6 +11,11 @@ if ( args.filter(i => i === "compile=debug")[0] ) {
 }
 if ( args.includes("libs") ) libs();
 
+// theme
+if ( args.includes("theme") ) themeIcons(); themeCss();
+if ( args.filter(i => i === "theme=icons")[0] ) themeIcons();
+if ( args.filter(i => i === "theme=css")[0] ) themeCss();
+
 
 function libs() {
 	require("./libs.js").forEach(i => {
@@ -38,7 +43,7 @@ function debug() {
 	shell.exec(`handlebars ${INP}/templates/template/ -f ${OUT}/js/templates.js -e hbs -m -o`);
 	shell.exec(`handlebars ${INP}/templates/partial/ -f ${OUT}/js/partials.js -p -e hbs -m -o`);
 	shell.exec(`babel ${INP}/js/ -d ${OUT}/js -s`);
-	shell.exec(`sass ${INP}/sass/style.scss:${OUT}/css/style.css --style expanded --sourcemap=auto`);
+	shell.exec(`chcp 1252 && sass ${INP}/sass/style.scss:${OUT}/css/style.css --style expanded --sourcemap=auto`);
 }
 
 function release() {
@@ -74,4 +79,26 @@ function release() {
 	shell.cp("-r", `${INP}/js/workers/`, `${OUT}/js/`);
 	
 	shell.exec(`node-sass ${INP}/sass/style.scss > ${OUT}/css/style.css --output-style compressed`);
-};
+}
+
+function themeCss() {
+	shell.rm("-f", "./dist/lib/uikit-rtl.css");
+	shell.cd("./src/theme/");
+	shell.exec("node-sass site.scss > theme.css --output-style expanded");
+	shell.exec("rtlcss theme.css ../../dist/lib/uikit-rtl.css");
+	shell.rm("-f", "theme.css");
+	shell.cd("../../");
+	shell.cp("-f", "./dist/lib/uikit-rtl.css", "./uk/dist/css/");
+}
+
+function themeIcons() {
+	shell.rm("-f", "./dist/lib/uikit-icons.js");
+	shell.rm("-rf", "./uk/custom/icons/");
+	shell.mkdir("-p", "./uk/custom/icons/");
+	shell.cp("-r", "./src/theme/icons/", "./uk/custom/icons/");
+	shell.cd("uk");
+	shell.exec("npm run compile");
+	shell.cp("dist/js/uikit-icons.js", "../dist/lib/");
+	shell.cd("../");
+	shell.cp("-f", "./dist/lib/uikit-icons.js", "./uk/dist/js/");
+}

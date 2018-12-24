@@ -6,6 +6,9 @@
     "compile": "node build.js -- compile=debug",
     "release": "node build.js -- compile=release",
     "libs": "node build.js -- libs",
+    "theme": "node build.js -- theme",
+    "themeCss": "node build.js -- theme=css",
+    "themeIcons": "node build.js -- theme=icons",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -16,13 +19,14 @@
     "@babel/core": "latest",
     "@babel/preset-env": "latest",
     "fs-extra": "latest",
-    "shelljs": "latest",
     "gulp": "latest",
     "gulp-cli": "latest",
     "gulp-livereload": "latest",
     "gulp-shell": "latest",
     "htmlbilder": "latest",
-    "node-sass": "latest"
+    "node-sass": "latest",
+    "rtlcss": "^2.4.0",
+    "shelljs": "latest"
   },
   "dependencies": {
     "handlebars": "latest",
