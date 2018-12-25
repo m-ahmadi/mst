@@ -12,7 +12,7 @@ if ( args.filter(i => i === "compile=debug")[0] ) {
 if ( args.includes("libs") ) libs();
 
 // theme
-if ( args.includes("theme") ) themeIcons(); themeCss();
+if ( args.includes("theme") ) { themeIcons(); themeCss(); }
 if ( args.filter(i => i === "theme=icons")[0] ) themeIcons();
 if ( args.filter(i => i === "theme=css")[0] ) themeCss();
 
@@ -95,7 +95,7 @@ function themeIcons() {
 	shell.rm("-f", "./dist/lib/uikit-icons.js");
 	shell.rm("-rf", "./uk/custom/icons/");
 	shell.mkdir("-p", "./uk/custom/icons/");
-	shell.cp("-r", "./src/theme/icons/", "./uk/custom/icons/");
+	shell.cp("-r", "./src/theme/icons/*", "./uk/custom/icons/");
 	shell.cd("uk");
 	shell.exec("npm run compile");
 	shell.cp("dist/js/uikit-icons.js", "../dist/lib/");

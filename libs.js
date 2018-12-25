@@ -3,5 +3,6 @@ module.exports = [
 	"handlebars",
 	"jquery",
 	"util-ma",
-	"pubsub-ma"
+	"pubsub-ma",
+	"materialize-css"
 ];
