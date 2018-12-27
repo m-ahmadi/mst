@@ -14,14 +14,19 @@ $global-link-color:                              #1e87f0;
 $global-link-hover-color:                        #0f6ecd;
 $global-inverse-color:                           #fff;
 $global-background:                              #fff;
+
 $global-muted-background:                        #f8f8f8;
-$global-primary-background:                      #1e87f0;
-$global-secondary-background:                    #222;
-$global-success-background:                      #32d296;
-$global-warning-background:                      #faa05a;
-$global-danger-background:                       #f0506e;
-$card-default-background:                       $global-background !default;
-$card-default-hover-background:                 $card-default-background !default;
+$global-primary-background:                      #00adc3; 
+$global-secondary-background:                    #00695c;
+
+$global-success-background:                      #36d232;
+$global-warning-background:                      #ff9d3d;
+$global-danger-background:                       #ff1744;
+
+$card-default-background:                       $global-background;
+$card-default-hover-background:                 $card-default-background;
+
+$button-text-transform:                          none;
 
 @import "scss/variables-theme.scss";
 @import "scss/mixins-theme.scss";

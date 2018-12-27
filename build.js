@@ -1,5 +1,6 @@
 const fs = require("fs-extra");
 const shell = require("shelljs");
+const dirs = p => fs.readdirSync(p).filter( f => fs.statSync(p+"/"+f).isDirectory() );
 // console.log(process.argv);
 process.env.path += ";./node_modules/.bin";
 
@@ -32,14 +33,17 @@ function debug() {
 	shell.mkdir("-p", OUT+"/css", OUT+"/js");
 	shell.cp("-r", INP+"/lib", INP+"/images", INP+"/fonts", OUT);
 	shell.mv(OUT+"/images/favicon.ico", OUT);
-
-	fs.writeFileSync(INP+"/html/links/root.htm",           ROOT,                "utf8");
-	fs.writeFileSync(INP+"/html/scripts/root.htm",         ROOT,                "utf8");
-	fs.writeFileSync(INP+"/html/scripts/app/root.htm",     ROOT,                "utf8");
-	fs.writeFileSync(INP+"/html/scripts/app/filename.htm", "main.js",           "utf8");
-	fs.writeFileSync(INP+"/js/core/root.js",               "export default '';", "utf8");
-
-	shell.exec(`htmlbilder ${INP}/html/ -o ${OUT}/index.html`);
+	
+	fs.writeFileSync(INP+"/js/core/root.js", "export default '';", "utf8");
+	
+	dirs(`${INP}/html/`).forEach(i => {
+		fs.writeFileSync(`${INP}/html/${i}/links/root.htm`,           ROOT,      "utf8");
+		fs.writeFileSync(`${INP}/html/${i}/scripts/root.htm`,         ROOT,      "utf8");
+		fs.writeFileSync(`${INP}/html/${i}/scripts/app/root.htm`,     ROOT,      "utf8");
+		fs.writeFileSync(`${INP}/html/${i}/scripts/app/filename.htm`, "main.js", "utf8");
+		shell.exec(`htmlbilder ${INP}/html/${i}/ -o ${OUT}/${i}.html`);
+	});
+	
 	shell.exec(`handlebars ${INP}/templates/template/ -f ${OUT}/js/templates.js -e hbs -m -o`);
 	shell.exec(`handlebars ${INP}/templates/partial/ -f ${OUT}/js/partials.js -p -e hbs -m -o`);
 	shell.exec(`babel ${INP}/js/ -d ${OUT}/js -s`);
