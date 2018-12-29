@@ -1,0 +1,5 @@
+1. handling html layouts
+2. changing lib coppying mechanism
+3. changing theme construction mechanism
+4. adjusting build release
+5. adapting watching mechanism to the new structure

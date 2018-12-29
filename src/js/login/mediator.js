@@ -13,4 +13,4 @@ function onReady() {
 inst.beforeReady = beforeReady;
 inst.onReady = onReady;
 
-export default inst;
+export default inst
