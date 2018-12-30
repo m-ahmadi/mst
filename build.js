@@ -147,20 +147,20 @@ function themeCss() {
 	shell.rm("-f", "./dist/lib/uikit-rtl.css");
 	shell.cd("./src/theme/");
 	shell.exec("node-sass site.scss > theme.css --output-style expanded");
-	shell.exec("rtlcss theme.css ../../dist/lib/uikit-rtl.css");
+	shell.exec("rtlcss theme.css ../../dist/lib/common/uikit-rtl.css");
 	shell.rm("-f", "theme.css");
 	shell.cd("../../");
-	shell.cp("-f", "./dist/lib/uikit-rtl.css", "./uk/dist/css/");
+	shell.cp("-f", "./dist/lib/common/uikit-rtl.css", "./uk/dist/css/");
 }
 
 function themeIcons() {
-	shell.rm("-f", "./dist/lib/uikit-icons.js");
+	shell.rm("-f", "./dist/lib/common/uikit-icons.js");
 	shell.rm("-rf", "./uk/custom/icons/");
 	shell.mkdir("-p", "./uk/custom/icons/");
 	shell.cp("-r", "./src/theme/icons/*", "./uk/custom/icons/");
 	shell.cd("uk");
 	shell.exec("npm run compile");
-	shell.cp("dist/js/uikit-icons.js", "../dist/lib/");
+	shell.cp("dist/js/uikit-icons.js", "../dist/lib/common/");
 	shell.cd("../");
-	shell.cp("-f", "./dist/lib/uikit-icons.js", "./uk/dist/js/");
+	shell.cp("-f", "./dist/lib/common/uikit-icons.js", "./uk/dist/js/");
 }
