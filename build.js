@@ -22,8 +22,21 @@ if ( args.filter(i => i === "theme=css")[0] ) themeCss();
 
 
 function libs() {
-	require("./libs.js").forEach(i => {
-		shell.cp("-r", `./node_modules/${i}`, "./src/lib/");
+	const libs = require("./libs.js");
+	const INP = "./src";
+	
+	shell.rm("-rf", `${INP}/lib/`);
+	
+	Object.keys(libs).forEach(page => {
+		let pageLibs = libs[page];
+		if ( Array.isArray(pageLibs) ) {
+			const path = `${INP}/lib/${page}/`;
+			if ( !fs.existsSync(path) ) shell.mkdir("-p", path);
+			pageLibs.forEach(i => {
+				const trimmed = i.trim();
+				if (trimmed.length > 0) shell.cp("-r", `./node_modules/${i}/`, path);
+			});
+		}
 	});
 };
 

@@ -1,8 +1,12 @@
-module.exports = [
-	"requirejs",
-	"handlebars",
-	"jquery",
-	"util-ma",
-	"pubsub-ma",
-	"materialize-css"
-];
+module.exports = {
+	common: [
+		"requirejs",
+		"handlebars",
+		"jquery",
+		"util-ma",
+		"pubsub-ma",
+		"materialize-css"
+	],
+	index: ["", ""],
+	login: ["", ""]
+};
