@@ -63,7 +63,7 @@ function debug() {
 		}
 	});
 	
-	const layouts = {};
+	let layouts = {};
 	files(`${INP}/html/LAYOUTS/`).forEach(i => {
 		layouts[ i.split(".")[0] ] = fs.readFileSync(`${INP}/html/LAYOUTS/${i}`, {encoding: "utf-8", flag: "r"});
 	});
@@ -72,7 +72,7 @@ function debug() {
 			let str = fs.readFileSync(`${INP}/html/${i}`, {encoding: "utf-8", flag: "r"});
 			str = str.replace(/@@@/g, "{{{");
 			str = str.replace(/%%%/g, "}}}");
-			const template = Handlebars.compile(str);
+			let template = Handlebars.compile(str);
 			fs.writeFileSync(`${OUT}/${i.split(".")[0]}.html`, indent.indentHTML(template(layouts), "  "), "utf8");
 			fs.unlinkSync(`${INP}/html/${i}`);
 		}
@@ -118,33 +118,14 @@ function release() {
 	shell.mkdir("-p", OUT+"/css", OUT+"/js");
 	shell.cp("-r", INP+"/lib", INP+"/images", INP+"/fonts", OUT);
 	shell.mv(OUT+"/images/favicon.ico", OUT);
-	
-	fs.writeFileSync(INP+"/js/common/root.js", "export default '${ROOT}';", "utf8");
-	
-	dirs(`${INP}/html/`).forEach(i => {
-		if (i !== "LAYOUTS") {
-			fs.writeFileSync(`${INP}/html/${i}/links/root.htm`,           ROOT, "utf8");
-			fs.writeFileSync(`${INP}/html/${i}/scripts/root.htm`,         ROOT, "utf8");
-			fs.writeFileSync(`${INP}/html/${i}/scripts/app/root.htm`,     ROOT, "utf8");
-			fs.writeFileSync(`${INP}/html/${i}/scripts/app/filename.htm`, FL,   "utf8");
-			shell.exec(`htmlbilder ${INP}/html/${i}/ -o ${INP}/html/${i}.hbs`);
-		}
-	});
-	
-	const layouts = {};
-	files(`${INP}/html/LAYOUTS/`).forEach(i => {
-		layouts[ i.split(".")[0] ] = fs.readFileSync(`${INP}/html/LAYOUTS/${i}`, {encoding: "utf-8", flag: "r"});
-	});
-	files(`${INP}/html/`).forEach(i => {
-		if ( i.endsWith(".hbs") ) {
-			let str = fs.readFileSync(`${INP}/html/${i}`, {encoding: "utf-8", flag: "r"});
-			str = str.replace(/@@@/g, "{{{");
-			str = str.replace(/%%%/g, "}}}");
-			const template = Handlebars.compile(str);
-			fs.writeFileSync(`./release/${i.split(".")[0]}.html`, indent.indentHTML(template(layouts), "  "), "utf8");
-			fs.unlinkSync(`${INP}/html/${i}`);
-		}
-	});
+
+	fs.writeFileSync(INP+"/html/links/root.htm",           ROOT,                       "utf8");
+	fs.writeFileSync(INP+"/html/scripts/root.htm",         ROOT,                       "utf8");
+	fs.writeFileSync(INP+"/html/scripts/app/root.htm",     ROOT,                       "utf8");
+	fs.writeFileSync(INP+"/html/scripts/app/filename.htm", FL,                         "utf8");
+	fs.writeFileSync(INP+"/js/core/root.js",               "export default '${ROOT}';", "utf8");
+
+	shell.exec(`htmlbilder ${INP}/html/ -o ./release/index.html`);
 	
 	const TEMPLATES_FILE = `${OUT}/js/templates.tmp.js`;
 	const PARTIALS_FILE = `${OUT}/js/partials.tmp.js`;
