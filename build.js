@@ -153,6 +153,15 @@ function release() {
 	fs.writeFileSync(`${OUT}/js/templates.js`, shell.cat(TEMPLATES_FILE, PARTIALS_FILE), "utf8");
 	shell.rm("-rf", TEMPLATES_FILE, PARTIALS_FILE);
 	
+	// TODO
+	dirs(`${INP}/js/`).forEach(i => {
+		if (i === "common") {
+			
+		} else {
+			
+		}
+	});
+
 	const TMP = `${OUT}/js/app.unbabeled.js`;
 	shell.exec(`r_js -o baseUrl=${INP}/js/ name=main out=${TMP} optimize=none`);
 	shell.exec(`babel ${TMP} -o ${OUT}/js/${FL} --minified`); // --minified
