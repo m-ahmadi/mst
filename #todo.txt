@@ -2,4 +2,5 @@
 2. changing lib coppying mechanism
 3. changing theme construction mechanism
 4. adjusting build release
-5. adapting watching mechanism to the new structure
+5. changing ruby sass to npm sass
+6. adapting watching mechanism to the new structure

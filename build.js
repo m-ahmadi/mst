@@ -155,18 +155,14 @@ function release() {
 	
 	// TODO
 	dirs(`${INP}/js/`).forEach(i => {
-		if (i === "common") {
-			
-		} else {
-			
+		if (i !== "common") {
+			const TMP = `${OUT}/js/${i}/app.unbabeled.js`;
+			shell.exec(`r_js -o baseUrl=${INP}/js/${i}/ name=main out=${TMP} optimize=none`);
+			shell.exec(`babel ${TMP} -o ${OUT}/js/${i}/${FL} --minified`); // --minified
+			shell.rm("-rf", TMP);
+			shell.cp("-r", `${INP}/js/${i}/workers/`, `${OUT}/js/${i}/`);
 		}
 	});
-
-	const TMP = `${OUT}/js/app.unbabeled.js`;
-	shell.exec(`r_js -o baseUrl=${INP}/js/ name=main out=${TMP} optimize=none`);
-	shell.exec(`babel ${TMP} -o ${OUT}/js/${FL} --minified`); // --minified
-	shell.rm("-rf", TMP);
-	shell.cp("-r", `${INP}/js/workers/`, `${OUT}/js/`);
 	
 	shell.exec(`node-sass ${INP}/sass/style.scss > ${OUT}/css/style.css --output-style compressed`);
 }
