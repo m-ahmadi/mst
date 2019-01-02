@@ -100,9 +100,9 @@ function debug() {
 	dirs(`${INP}/sass/`).forEach(i => {
 		shell.mkdir("-p", `${OUT}/css/${i}/`);
 		if (i === "common") {
-			shell.exec(`chcp 1252 && sass ${INP}/sass/common/style.scss:${OUT}/css/common/style.css --style expanded --sourcemap=auto`);
+			shell.exec(`sass ${INP}/sass/common/style.scss:${OUT}/css/common/style.css`);
 		} else {
-			shell.exec(`chcp 1252 && sass ${INP}/sass/${i}/style.scss:${OUT}/css/${i}/style.css --style expanded --sourcemap=auto`);
+			shell.exec(`sass ${INP}/sass/${i}/style.scss:${OUT}/css/${i}/style.css`);
 		}
 	});
 	
@@ -164,13 +164,13 @@ function release() {
 		}
 	});
 	
-	shell.exec(`node-sass ${INP}/sass/style.scss > ${OUT}/css/style.css --output-style compressed`);
+	shell.exec(`sass ${INP}/sass/style.scss:${OUT}/css/style.css --style=compressed`);
 }
 
 function themeCss() {
 	shell.rm("-f", "./dist/lib/uikit-rtl.css");
 	shell.cd("./src/theme/");
-	shell.exec("node-sass site.scss > theme.css --output-style expanded");
+	shell.exec("sass site.scss:theme.css");
 	shell.exec("rtlcss theme.css ../../dist/lib/common/uikit-rtl.css");
 	shell.rm("-f", "theme.css");
 	shell.cd("../../");
