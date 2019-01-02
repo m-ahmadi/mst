@@ -25,7 +25,9 @@ function libs() {
 	const libs = require("./libs.js");
 	const INP = "./src";
 	
-	shell.rm("-rf", `${INP}/lib/`);
+	dirs(`${INP}/lib/`).forEach(i => {
+		shell.rm("-rf", `${INP}/lib/${i}/*/`);
+	});
 	
 	Object.keys(libs).forEach(page => {
 		let pageLibs = libs[page];
