@@ -164,7 +164,7 @@ function release() {
 		}
 	});
 	
-	shell.exec(`sass ${INP}/sass/style.scss:${OUT}/css/style.css --style=compressed`);
+	shell.exec(`sass ${INP}/sass/style.scss:${OUT}/css/style.css --style=compressed --no-source-map`);
 }
 
 function themeCss() {

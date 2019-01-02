@@ -24,7 +24,6 @@
     "gulp-livereload": "latest",
     "gulp-shell": "latest",
     "htmlbilder": "latest",
-    "node-sass": "latest",
     "rtlcss": "^2.4.0",
     "shelljs": "latest"
   },
