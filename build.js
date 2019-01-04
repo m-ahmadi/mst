@@ -75,7 +75,7 @@ function debug() {
 			str = str.replace(/@@@/g, "{{{");
 			str = str.replace(/%%%/g, "}}}");
 			const template = Handlebars.compile(str);
-			fs.writeFileSync(`${OUT}/${i.split(".")[0]}.html`, indent.indentHTML(template(layouts), "  "), "utf8");
+			fs.writeFileSync(`${OUT}/${i.split(".")[0]}.html`, indent.html(template(layouts), {tabString: "  "}), "utf8");
 			fs.unlinkSync(`${INP}/html/${i}`);
 		}
 	});
@@ -143,27 +143,35 @@ function release() {
 			str = str.replace(/@@@/g, "{{{");
 			str = str.replace(/%%%/g, "}}}");
 			const template = Handlebars.compile(str);
-			fs.writeFileSync(`./release/${i.split(".")[0]}.html`, indent.indentHTML(template(layouts), "  "), "utf8");
+			fs.writeFileSync(`./release/${i.split(".")[0]}.html`, indent.html(template(layouts), {tabString: "  "}), "utf8");
 			fs.unlinkSync(`${INP}/html/${i}`);
 		}
 	});
 	
-	const TEMPLATES_FILE = `${OUT}/js/templates.tmp.js`;
-	const PARTIALS_FILE = `${OUT}/js/partials.tmp.js`;
-	shell.exec(`handlebars ${INP}/templates/template/ -f ${TEMPLATES_FILE} -e hbs -m -o`);
-	shell.exec(`handlebars ${INP}/templates/partial/ -f ${PARTIALS_FILE} -p -e hbs -m -o`);
-	fs.writeFileSync(`${OUT}/js/templates.js`, shell.cat(TEMPLATES_FILE, PARTIALS_FILE), "utf8");
-	shell.rm("-rf", TEMPLATES_FILE, PARTIALS_FILE);
-	
-	// TODO
 	dirs(`${INP}/js/`).forEach(i => {
-		if (i !== "common") {
+		if (i === "common") {
+			shell.exec(`babel ${INP}/js/common/ -d ${OUT}/js/common/ --minified`);
+		} else {
 			const TMP = `${OUT}/js/${i}/app.unbabeled.js`;
 			shell.exec(`r_js -o baseUrl=${INP}/js/${i}/ name=main out=${TMP} optimize=none`);
 			shell.exec(`babel ${TMP} -o ${OUT}/js/${i}/${FL} --minified`); // --minified
 			shell.rm("-rf", TMP);
-			shell.cp("-r", `${INP}/js/${i}/workers/`, `${OUT}/js/${i}/`);
+			// shell.cp("-r", `${INP}/js/${i}/workers/`, `${OUT}/js/${i}/`);
+			shell.exec(`babel ${INP}/js/${i}/workers/ -d ${OUT}/js/${i}/workers/`);
 		}
+	});
+	
+	dirs(`${INP}/templates/`).forEach(i => {
+		const ensureDir = `${OUT}/js/${i}/`;
+		const TEMPLATES_FILE = `${OUT}/js/${i}/templates.tmp.js`;
+		const PARTIALS_FILE = `${OUT}/js/${i}/partials.tmp.js`;
+		
+		if ( !fs.existsSync(ensureDir) ) shell.mkdir("-p", ensureDir);
+		
+		shell.exec(`handlebars ${INP}/templates/${i}/template/ -f ${TEMPLATES_FILE} -e hbs -m -o`);
+		shell.exec(`handlebars ${INP}/templates/${i}/partial/ -f ${PARTIALS_FILE} -p -e hbs -m -o`);
+		fs.writeFileSync(`${OUT}/js/${i}/templates.js`, shell.cat(TEMPLATES_FILE, PARTIALS_FILE), "utf8");
+		shell.rm("-rf", TEMPLATES_FILE, PARTIALS_FILE);
 	});
 	
 	shell.exec(`sass ${INP}/sass/style.scss:${OUT}/css/style.css --style=compressed --no-source-map`);
