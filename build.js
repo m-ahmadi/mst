@@ -52,14 +52,14 @@ function debug() {
 	shell.cp("-r", INP+"/lib", INP+"/images", INP+"/fonts", OUT);
 	shell.mv(OUT+"/images/favicon.ico", OUT);
 	
-	fs.writeFileSync(INP+"/js/common/root.js", 'export default "";', "utf8");
+	fs.writeFileSync(INP+"/js/common/root.js", 'export default "";', "utf-8");
 	
 	dirs(`${INP}/html/`).forEach(i => {
 		if (i !== "LAYOUTS") {
-			fs.writeFileSync(`${INP}/html/${i}/links/root.htm`,           ROOT,      "utf8");
-			fs.writeFileSync(`${INP}/html/${i}/scripts/root.htm`,         ROOT,      "utf8");
-			fs.writeFileSync(`${INP}/html/${i}/scripts/app/root.htm`,     ROOT,      "utf8");
-			fs.writeFileSync(`${INP}/html/${i}/scripts/app/filename.htm`, "main.js", "utf8");
+			fs.writeFileSync(`${INP}/html/${i}/links/root.htm`,           ROOT,      "utf-8");
+			fs.writeFileSync(`${INP}/html/${i}/scripts/root.htm`,         ROOT,      "utf-8");
+			fs.writeFileSync(`${INP}/html/${i}/scripts/app/root.htm`,     ROOT,      "utf-8");
+			fs.writeFileSync(`${INP}/html/${i}/scripts/app/filename.htm`, "main.js", "utf-8");
 			//shell.exec(`htmlbilder ${INP}/html/${i}/ -o ${OUT}/${i}.html`);
 			shell.exec(`htmlbilder ${INP}/html/${i}/ -o ${INP}/html/${i}.hbs`);
 		}
@@ -75,7 +75,7 @@ function debug() {
 			str = str.replace(/@@@/g, "{{{");
 			str = str.replace(/%%%/g, "}}}");
 			const template = Handlebars.compile(str);
-			fs.writeFileSync(`${OUT}/${i.split(".")[0]}.html`, indent.html(template(layouts), {tabString: "  "}), "utf8");
+			fs.writeFileSync(`${OUT}/${i.split(".")[0]}.html`, indent.html(template(layouts), {tabString: "  "}), "utf-8");
 			fs.unlinkSync(`${INP}/html/${i}`);
 		}
 	});
@@ -121,14 +121,14 @@ function release() {
 	shell.cp("-r", INP+"/lib", INP+"/images", INP+"/fonts", OUT);
 	shell.mv(OUT+"/images/favicon.ico", OUT);
 	
-	fs.writeFileSync(INP+"/js/common/root.js", "export default '${ROOT}';", "utf8");
+	fs.writeFileSync(INP+"/js/common/root.js", "export default '${ROOT}';", "utf-8");
 	
 	dirs(`${INP}/html/`).forEach(i => {
 		if (i !== "LAYOUTS") {
-			fs.writeFileSync(`${INP}/html/${i}/links/root.htm`,           ROOT, "utf8");
-			fs.writeFileSync(`${INP}/html/${i}/scripts/root.htm`,         ROOT, "utf8");
-			fs.writeFileSync(`${INP}/html/${i}/scripts/app/root.htm`,     ROOT, "utf8");
-			fs.writeFileSync(`${INP}/html/${i}/scripts/app/filename.htm`, FL,   "utf8");
+			fs.writeFileSync(`${INP}/html/${i}/links/root.htm`,           ROOT, "utf-8");
+			fs.writeFileSync(`${INP}/html/${i}/scripts/root.htm`,         ROOT, "utf-8");
+			fs.writeFileSync(`${INP}/html/${i}/scripts/app/root.htm`,     ROOT, "utf-8");
+			fs.writeFileSync(`${INP}/html/${i}/scripts/app/filename.htm`, FL,   "utf-8");
 			shell.exec(`htmlbilder ${INP}/html/${i}/ -o ${INP}/html/${i}.hbs`);
 		}
 	});
@@ -143,21 +143,26 @@ function release() {
 			str = str.replace(/@@@/g, "{{{");
 			str = str.replace(/%%%/g, "}}}");
 			const template = Handlebars.compile(str);
-			fs.writeFileSync(`./release/${i.split(".")[0]}.html`, indent.html(template(layouts), {tabString: "  "}), "utf8");
+			fs.writeFileSync(`./release/${i.split(".")[0]}.html`, indent.html(template(layouts), {tabString: "  "}), "utf-8");
 			fs.unlinkSync(`${INP}/html/${i}`);
 		}
 	});
 	
 	dirs(`${INP}/js/`).forEach(i => {
-		if (i === "common") {
+		if (i !== "common") {
+			const dir = `${OUT}/js/${i}/`;
+			const file = `${OUT}/js/${FL}`;
+			const file2 = `${OUT}/js/${i}/${FL}`;
+			
 			shell.exec(`babel ${INP}/js/common/ -d ${OUT}/js/common/ --minified`);
-		} else {
-			const TMP = `${OUT}/js/${i}/app.unbabeled.js`;
-			shell.exec(`r_js -o baseUrl=${INP}/js/${i}/ name=main out=${TMP} optimize=none`);
-			shell.exec(`babel ${TMP} -o ${OUT}/js/${i}/${FL} --minified`); // --minified
-			shell.rm("-rf", TMP);
+			shell.exec(`babel ${INP}/js/${i}/ -d ${dir}`);
+			shell.exec(`r_js -o baseUrl=${dir} name=main out=${file} optimize=uglify`); // optimize=none uglify
+			shell.rm("-rf", dir);
+			shell.rm("-rf", `${OUT}/js/common/`);
 			// shell.cp("-r", `${INP}/js/${i}/workers/`, `${OUT}/js/${i}/`);
-			shell.exec(`babel ${INP}/js/${i}/workers/ -d ${OUT}/js/${i}/workers/`);
+			shell.exec(`babel ${INP}/js/${i}/workers/ -d ${OUT}/js/${i}/workers/ --minified`); // --minified
+			shell.mv(file, `${OUT}/js/${i}/`);
+			fs.writeFileSync(file2, fs.readFileSync(file2, "utf-8")+'require(["main"]);'); // "\n"
 		}
 	});
 	
@@ -170,7 +175,7 @@ function release() {
 		
 		shell.exec(`handlebars ${INP}/templates/${i}/template/ -f ${TEMPLATES_FILE} -e hbs -m -o`);
 		shell.exec(`handlebars ${INP}/templates/${i}/partial/ -f ${PARTIALS_FILE} -p -e hbs -m -o`);
-		fs.writeFileSync(`${OUT}/js/${i}/templates.js`, shell.cat(TEMPLATES_FILE, PARTIALS_FILE), "utf8");
+		fs.writeFileSync(`${OUT}/js/${i}/templates.js`, shell.cat(TEMPLATES_FILE, PARTIALS_FILE), "utf-8");
 		shell.rm("-rf", TEMPLATES_FILE, PARTIALS_FILE);
 	});
 	
