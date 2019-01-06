@@ -56,10 +56,10 @@ function debug() {
 	
 	dirs(`${INP}/html/`).forEach(i => {
 		if (i !== "LAYOUTS") {
-			fs.writeFileSync(`${INP}/html/${i}/links/root.htm`,           ROOT,      "utf-8");
-			fs.writeFileSync(`${INP}/html/${i}/scripts/root.htm`,         ROOT,      "utf-8");
-			fs.writeFileSync(`${INP}/html/${i}/scripts/app/root.htm`,     ROOT,      "utf-8");
-			fs.writeFileSync(`${INP}/html/${i}/scripts/app/filename.htm`, "main.js", "utf-8");
+			fs.writeFileSync(`${INP}/html/${i}/links/root.htm`,           ROOT);
+			fs.writeFileSync(`${INP}/html/${i}/scripts/root.htm`,         ROOT);
+			fs.writeFileSync(`${INP}/html/${i}/scripts/app/root.htm`,     ROOT);
+			fs.writeFileSync(`${INP}/html/${i}/scripts/app/filename.htm`, "main.js");
 			//shell.exec(`htmlbilder ${INP}/html/${i}/ -o ${OUT}/${i}.html`);
 			shell.exec(`htmlbilder ${INP}/html/${i}/ -o ${INP}/html/${i}.hbs`);
 		}
@@ -67,15 +67,15 @@ function debug() {
 	
 	const layouts = {};
 	files(`${INP}/html/LAYOUTS/`).forEach(i => {
-		layouts[ i.split(".")[0] ] = fs.readFileSync(`${INP}/html/LAYOUTS/${i}`, {encoding: "utf-8", flag: "r"});
+	layouts[ i.split(".")[0] ] = fs.readFileSync(`${INP}/html/LAYOUTS/${i}`, "utf-8");
 	});
 	files(`${INP}/html/`).forEach(i => {
 		if ( i.endsWith(".hbs") ) {
-			let str = fs.readFileSync(`${INP}/html/${i}`, {encoding: "utf-8", flag: "r"});
+			let str = fs.readFileSync(`${INP}/html/${i}`, "utf-8");
 			str = str.replace(/@@@/g, "{{{");
 			str = str.replace(/%%%/g, "}}}");
 			const template = Handlebars.compile(str);
-			fs.writeFileSync(`${OUT}/${i.split(".")[0]}.html`, indent.html(template(layouts), {tabString: "  "}), "utf-8");
+			fs.writeFileSync( `${OUT}/${i.split(".")[0]}.html`, indent.html(template(layouts), {tabString: "  "}) );
 			fs.unlinkSync(`${INP}/html/${i}`);
 		}
 	});
@@ -121,29 +121,29 @@ function release() {
 	shell.cp("-r", INP+"/lib", INP+"/images", INP+"/fonts", OUT);
 	shell.mv(OUT+"/images/favicon.ico", OUT);
 	
-	fs.writeFileSync(INP+"/js/common/root.js", "export default '${ROOT}';", "utf-8");
+	fs.writeFileSync(INP+"/js/common/root.js", "export default '${ROOT}';");
 	
 	dirs(`${INP}/html/`).forEach(i => {
 		if (i !== "LAYOUTS") {
-			fs.writeFileSync(`${INP}/html/${i}/links/root.htm`,           ROOT, "utf-8");
-			fs.writeFileSync(`${INP}/html/${i}/scripts/root.htm`,         ROOT, "utf-8");
-			fs.writeFileSync(`${INP}/html/${i}/scripts/app/root.htm`,     ROOT, "utf-8");
-			fs.writeFileSync(`${INP}/html/${i}/scripts/app/filename.htm`, FL,   "utf-8");
+			fs.writeFileSync(`${INP}/html/${i}/links/root.htm`,           ROOT);
+			fs.writeFileSync(`${INP}/html/${i}/scripts/root.htm`,         ROOT);
+			fs.writeFileSync(`${INP}/html/${i}/scripts/app/root.htm`,     ROOT);
+			fs.writeFileSync(`${INP}/html/${i}/scripts/app/filename.htm`, FL);
 			shell.exec(`htmlbilder ${INP}/html/${i}/ -o ${INP}/html/${i}.hbs`);
 		}
 	});
 	
 	const layouts = {};
 	files(`${INP}/html/LAYOUTS/`).forEach(i => {
-		layouts[ i.split(".")[0] ] = fs.readFileSync(`${INP}/html/LAYOUTS/${i}`, {encoding: "utf-8", flag: "r"});
+		layouts[ i.split(".")[0] ] = fs.readFileSync(`${INP}/html/LAYOUTS/${i}`, "utf-8");
 	});
 	files(`${INP}/html/`).forEach(i => {
 		if ( i.endsWith(".hbs") ) {
-			let str = fs.readFileSync(`${INP}/html/${i}`, {encoding: "utf-8", flag: "r"});
+			let str = fs.readFileSync(`${INP}/html/${i}`, "utf-8");
 			str = str.replace(/@@@/g, "{{{");
 			str = str.replace(/%%%/g, "}}}");
 			const template = Handlebars.compile(str);
-			fs.writeFileSync(`./release/${i.split(".")[0]}.html`, indent.html(template(layouts), {tabString: "  "}), "utf-8");
+			fs.writeFileSync( `./release/${i.split(".")[0]}.html`, indent.html(template(layouts), {tabString: "  "}) );
 			fs.unlinkSync(`${INP}/html/${i}`);
 		}
 	});
@@ -175,7 +175,7 @@ function release() {
 		
 		shell.exec(`handlebars ${INP}/templates/${i}/template/ -f ${TEMPLATES_FILE} -e hbs -m -o`);
 		shell.exec(`handlebars ${INP}/templates/${i}/partial/ -f ${PARTIALS_FILE} -p -e hbs -m -o`);
-		fs.writeFileSync(`${OUT}/js/${i}/templates.js`, shell.cat(TEMPLATES_FILE, PARTIALS_FILE), "utf-8");
+		fs.writeFileSync( `${OUT}/js/${i}/templates.js`, shell.cat(TEMPLATES_FILE, PARTIALS_FILE) );
 		shell.rm("-rf", TEMPLATES_FILE, PARTIALS_FILE);
 	});
 	
