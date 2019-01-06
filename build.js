@@ -30,17 +30,53 @@ function libs() {
 	});
 	
 	Object.keys(libs).forEach(page => {
-		let pageLibs = libs[page];
-		if ( Array.isArray(pageLibs) ) {
+		let pageLibs = libs[page].toCopy;
+		if ( Array.isArray(pageLibs) && pageLibs.length ) {
 			const path = `${INP}/lib/${page}/`;
 			if ( !fs.existsSync(path) ) shell.mkdir("-p", path);
 			pageLibs.forEach(i => {
 				const trimmed = i.trim();
-				if (trimmed.length > 0) shell.cp("-r", `./node_modules/${i}/`, path);
+				if (trimmed.length) shell.cp("-r", `./node_modules/${i}/`, path);
 			});
 		}
 	});
+	
+	Object.keys(libs).forEach(k => {
+		let prop = libs[k];
+	});
+	
 };
+
+function writeHtml() {
+	const libs = require("./libs.js");
+	const INP = "./src";
+	
+	Object.keys(libs).forEach(k => {
+		const prop = libs[k];
+		const css = prop.css;
+		const js = prop.js;
+		let links = "";
+		let scripts = "";
+		
+		if ( Array.isArray(css) ) {
+			css.forEach(i => {
+				links += `{{root}}lib/${k}/${i}`;
+				links += "\n";
+			});
+		}
+		
+		if ( Array.isArray(js) ) {
+			js.forEach(i => {
+				scripts += `{{root}}lib/${k}/${i}`;
+				scripts += "\n";
+			});
+			scripts += "{{{app}}}";
+		}
+		
+		fs.writeFileSync(`${INP}/html/${k}/links/`, links);
+		fs.writeFileSync("", scripts);
+	});
+}
 
 function debug() {
 	const INP = "./src";
