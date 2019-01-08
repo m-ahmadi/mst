@@ -1,3 +1,4 @@
+const path = require("path");
 const fs = require("fs-extra");
 const shell = require("shelljs");
 const Handlebars = require("handlebars");
@@ -5,7 +6,7 @@ const indent = require("indent.js");
 const dirs = p => fs.readdirSync(p).filter( f => fs.statSync(p+"/"+f).isDirectory() );
 const files = p => fs.readdirSync(p).filter( f => !fs.statSync(p+"/"+f).isDirectory() );
 // console.log(process.argv);
-process.env.path += ";./node_modules/.bin";
+process.env.path += `${path.delimiter}./node_modules/.bin`;
 
 let args = process.argv.slice(3);
 if ( args.filter(i => i === "compile=debug")[0] ) {
@@ -47,34 +48,50 @@ function libs() {
 	
 };
 
-function writeHtml() {
+function writeHtml(env = "debug") {
 	const libs = require("./libs.js");
 	const INP = "./src";
+	let links = "";
+	let scripts = "";
 	
 	Object.keys(libs).forEach(k => {
-		const prop = libs[k];
-		const css = prop.css;
-		const js = prop.js;
-		let links = "";
-		let scripts = "";
+		const { css, js } = libs[k];
 		
-		if ( Array.isArray(css) ) {
-			css.forEach(i => {
-				links += `{{root}}lib/${k}/${i}`;
-				links += "\n";
-			});
+		if (env === "debug") {
+			if ( Array.isArray(css) ) {
+				css.forEach(i => {
+					links += `<link rel="styleSheet" type="text/css" href="{{root}}lib/${k}/${i}" />`;
+					links += "\n";
+				});
+			}
+			
+			if ( Array.isArray(js) ) {
+				js.forEach(i => {
+					scripts += `<script type="text/javascript" src="{{root}}lib/${k}/${i}"></script>`;
+					scripts += "\n";
+				});
+			}
+		} else if (env === "release") {
+			links += `<link rel="styleSheet" type="text/css" href="{{root}}lib/${k}/libs.css" />`;
+			scripts += `<script type="text/javascript" src="{{root}}lib/${k}/libs.js"></script>`;
 		}
 		
-		if ( Array.isArray(js) ) {
-			js.forEach(i => {
-				scripts += `{{root}}lib/${k}/${i}`;
-				scripts += "\n";
-			});
-			scripts += "{{{app}}}";
+		if (k !== "common") {
+			let appScripts = "";
+			
+			if (env === "debug") {
+				appScripts += `<script type="text/javascript" src="{{root}}js/${k}/templates.js"></script>\n`;
+				appScripts += `<script type="text/javascript" src="{{root}}js/${k}/partials.js"></script>`;
+			} else if (env === "release") {
+				appScripts += `<script type="text/javascript" src="{{root}}js/${k}/templates.js"></script>`;
+			}
+			appScripts += "\n";
+			appScripts += `<script data-main="{{root}}js/${k}/{{filename}}" src="{{root}}lib/common/requirejs/require.js"></script>`;
+			
+			fs.writeFileSync(`${INP}/html/${k}/links/main.handlebars`, links + `<link rel="styleSheet" type="text/css" href="{{root}}css/${k}/style.css" />`);
+			fs.writeFileSync(`${INP}/html/${k}/scripts/main.handlebars`, scripts + "{{{app}}}");
+			fs.writeFileSync(`${INP}/html/${k}/scripts/app/main.handlebars`, appScripts);
 		}
-		
-		fs.writeFileSync(`${INP}/html/${k}/links/`, links);
-		fs.writeFileSync("", scripts);
 	});
 }
 
@@ -183,7 +200,7 @@ function release() {
 			fs.unlinkSync(`${INP}/html/${i}`);
 		}
 	});
-	
+	writeHtml("release");
 	dirs(`${INP}/js/`).forEach(i => {
 		if (i !== "common") {
 			const dir = `${OUT}/js/${i}/`;
@@ -214,6 +231,8 @@ function release() {
 		fs.writeFileSync( `${OUT}/js/${i}/templates.js`, shell.cat(TEMPLATES_FILE, PARTIALS_FILE) );
 		shell.rm("-rf", TEMPLATES_FILE, PARTIALS_FILE);
 	});
+	
+	
 	
 	shell.exec(`sass ${INP}/sass/style.scss:${OUT}/css/style.css --style=compressed --no-source-map`);
 }

@@ -1,4 +1,4 @@
-module.exports = {
+/* module.exports = {
 	common: [
 		"requirejs",
 		"handlebars",
@@ -9,7 +9,7 @@ module.exports = {
 	],
 	index: ["", ""],
 	login: ["", ""]
-};
+}; */
 
 module.exports = {
 	common: {
