@@ -48,7 +48,7 @@ function libs() {
 	
 };
 
-function writeHtml(env = "debug") {
+function writeHtml(env = "debug_hard") {
 	const libs = require("./libs.js");
 	const INP = "./src";
 	let links = "";
@@ -57,7 +57,7 @@ function writeHtml(env = "debug") {
 	Object.keys(libs).forEach(k => {
 		const { css, js } = libs[k];
 		
-		if (env === "debug") {
+		if (env === "hard_debug") {
 			if ( Array.isArray(css) ) {
 				css.forEach(i => {
 					links += `<link rel="styleSheet" type="text/css" href="{{root}}lib/${k}/${i}" />`;
@@ -71,24 +71,27 @@ function writeHtml(env = "debug") {
 					scripts += "\n";
 				});
 			}
-		} else if (env === "release") {
-			links += `<link rel="styleSheet" type="text/css" href="{{root}}lib/${k}/libs.css" />`;
-			scripts += `<script type="text/javascript" src="{{root}}lib/${k}/libs.js"></script>`;
 		}
 		
 		if (k !== "common") {
 			let appScripts = "";
 			
-			if (env === "debug") {
+			if (env === "hard_debug") {
 				appScripts += `<script type="text/javascript" src="{{root}}js/${k}/templates.js"></script>\n`;
 				appScripts += `<script type="text/javascript" src="{{root}}js/${k}/partials.js"></script>`;
-			} else if (env === "release") {
+			} else if (env === "normal_debug" || env === "light_debug" || env === "light_release") {
+				
+			} else if (env === "hard_release" || env === "static_release") {
+				links += `<link rel="styleSheet" type="text/css" href="{{root}}lib/${k}/libs.css" />\n`;
+				scripts += `<script type="text/javascript" src="{{root}}lib/${k}/libs.js"></script>`;
+			} else if (env === "static_release") {
 				appScripts += `<script type="text/javascript" src="{{root}}js/${k}/templates.js"></script>`;
 			}
 			appScripts += "\n";
 			appScripts += `<script data-main="{{root}}js/${k}/{{filename}}" src="{{root}}lib/common/requirejs/require.js"></script>`;
 			
-			fs.writeFileSync(`${INP}/html/${k}/links/main.handlebars`, links + `<link rel="styleSheet" type="text/css" href="{{root}}css/${k}/style.css" />`);
+			fs.writeFileSync(`${INP}/html/${k}/links/main.handlebars`, links +
+				`<link rel="styleSheet" type="text/css" href="{{root}}css/${k}/style.css" />`);
 			fs.writeFileSync(`${INP}/html/${k}/scripts/main.handlebars`, scripts + "{{{app}}}");
 			fs.writeFileSync(`${INP}/html/${k}/scripts/app/main.handlebars`, appScripts);
 		}
