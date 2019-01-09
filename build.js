@@ -60,15 +60,13 @@ function writeHtml(env = "debug_hard") {
 		if (env === "hard_debug") {
 			if ( Array.isArray(css) ) {
 				css.forEach(i => {
-					links += `<link rel="styleSheet" type="text/css" href="{{root}}lib/${k}/${i}" />`;
-					links += "\n";
+					links += `<link rel="styleSheet" type="text/css" href="{{root}}lib/${k}/${i}" />\n`;
 				});
 			}
 			
 			if ( Array.isArray(js) ) {
 				js.forEach(i => {
-					scripts += `<script type="text/javascript" src="{{root}}lib/${k}/${i}"></script>`;
-					scripts += "\n";
+					scripts += `<script type="text/javascript" src="{{root}}lib/${k}/${i}"></script>\n`;
 				});
 			}
 		}
@@ -78,17 +76,23 @@ function writeHtml(env = "debug_hard") {
 			
 			if (env === "hard_debug") {
 				appScripts += `<script type="text/javascript" src="{{root}}js/${k}/templates.js"></script>\n`;
-				appScripts += `<script type="text/javascript" src="{{root}}js/${k}/partials.js"></script>`;
-			} else if (env === "normal_debug" || env === "light_debug" || env === "light_release") {
+				appScripts += `<script type="text/javascript" src="{{root}}js/${k}/partials.js"></script>\n`;
+				appScripts += `<script data-main="{{root}}js/${k}/{{filename}}" src="{{root}}lib/common/requirejs/require.js"></script>`;
+			} else if (env === "normal_debug") {
+				
+			} else if (env === "light_debug") {
+				
+			} else if (env === "light_release") {
 				
 			} else if (env === "hard_release" || env === "static_release") {
-				links += `<link rel="styleSheet" type="text/css" href="{{root}}lib/${k}/libs.css" />\n`;
-				scripts += `<script type="text/javascript" src="{{root}}lib/${k}/libs.js"></script>`;
+				links += `<link rel="styleSheet" type="text/css" href="{{root}}css/${k}/style.min.css" />\n`;
+				scripts += `<script type="text/javascript" src="{{root}}js/${k}/libs.min.js"></script>`;
 			} else if (env === "static_release") {
-				appScripts += `<script type="text/javascript" src="{{root}}js/${k}/templates.js"></script>`;
+				links += `<link rel="styleSheet" type="text/css" href="{{root}}css/${k}/style.min.css" />\n`;
+				scripts += `<script type="text/javascript" src="{{root}}js/${k}/libs.min.js"></script>`;
+				appScripts += `<script data-main="{{root}}js/${k}/{{filename}}" src="{{root}}lib/common/requirejs/require.js"></script>`;
 			}
-			appScripts += "\n";
-			appScripts += `<script data-main="{{root}}js/${k}/{{filename}}" src="{{root}}lib/common/requirejs/require.js"></script>`;
+			
 			
 			fs.writeFileSync(`${INP}/html/${k}/links/main.handlebars`, links +
 				`<link rel="styleSheet" type="text/css" href="{{root}}css/${k}/style.css" />`);
