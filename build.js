@@ -48,7 +48,7 @@ function libs() {
 	
 };
 
-function writeHtml(env = "debug_hard") {
+function writeHtml(env = "debug") {
 	const libs = require("./libs.js");
 	const INP = "./src";
 	let links = "";
@@ -79,13 +79,12 @@ function writeHtml(env = "debug_hard") {
 				appScripts += `<script type="text/javascript" src="{{root}}js/${k}/partials.js"></script>\n`;
 				appScripts += `<script data-main="{{root}}js/${k}/{{filename}}" src="{{root}}lib/common/requirejs/require.js"></script>`;
 			} else if (env === "release") {
-				links = `<link rel="styleSheet" type="text/css" href="{{root}}css/${k}/style.min.css" />\n`;
-				scripts = `<script type="text/javascript" src="{{root}}js/${k}/libs.min.js"></script>`;
-				appScripts += `<script data-main="{{root}}js/${k}/{{filename}}" src="{{root}}lib/common/requirejs/require.min.js"></script>`;
+				scripts = `<script type="text/javascript" src="{{root}}js/${k}/libs.min.js"></script>\n`;
+				appScripts += `<script data-main="{{root}}js/${k}/{{filename}}" src="{{root}}lib/common/require.min.js"></script>`;
 			}
 			
 			fs.writeFileSync(`${INP}/html/${k}/links/main.handlebars`, links +
-				`<link rel="styleSheet" type="text/css" href="{{root}}css/${k}/style.css" />`);
+				`<link rel="styleSheet" type="text/css" href="{{root}}css/${k}/style.${env === 'debug' ? '' : 'min.'}css" />`);
 			fs.writeFileSync(`${INP}/html/${k}/scripts/main.handlebars`, scripts + "{{{app}}}");
 			fs.writeFileSync(`${INP}/html/${k}/scripts/app/main.handlebars`, appScripts);
 		}
@@ -103,6 +102,7 @@ function debug() {
 	shell.mv(OUT+"/images/favicon.ico", OUT);
 	
 	fs.writeFileSync(INP+"/js/common/root.js", 'export default "";', "utf-8");
+	writeHtml("debug");
 	
 	dirs(`${INP}/html/`).forEach(i => {
 		if (i !== "LAYOUTS") {
@@ -172,6 +172,7 @@ function release() {
 	shell.mv(OUT+"/images/favicon.ico", OUT);
 	
 	fs.writeFileSync(INP+"/js/common/root.js", "export default '${ROOT}';");
+	writeHtml("release");
 	
 	dirs(`${INP}/html/`).forEach(i => {
 		if (i !== "LAYOUTS") {
@@ -197,7 +198,7 @@ function release() {
 			fs.unlinkSync(`${INP}/html/${i}`);
 		}
 	});
-	writeHtml("release");
+	
 	dirs(`${INP}/js/`).forEach(i => {
 		if (i !== "common") {
 			const dir = `${OUT}/js/${i}/`;
