@@ -150,11 +150,13 @@ function debug() {
 	});
 	
 	dirs(`${INP}/sass/`).forEach(i => {
-		shell.mkdir("-p", `${OUT}/css/${i}/`);
-		if (i === "common") {
-			shell.exec(`sass ${INP}/sass/common/style.scss:${OUT}/css/common/style.css`);
-		} else {
-			shell.exec(`sass ${INP}/sass/${i}/style.scss:${OUT}/css/${i}/style.css`);
+		if ( fs.existsSync(`${INP}/sass/${i}/style.scss`) ) {
+			shell.mkdir("-p", `${OUT}/css/${i}/`);
+			if (i === "common") {
+				shell.exec(`sass ${INP}/sass/common/style.scss:${OUT}/css/common/style.css`);
+			} else {
+				shell.exec(`sass ${INP}/sass/${i}/style.scss:${OUT}/css/${i}/style.css`);
+			}
 		}
 	});
 	
@@ -230,9 +232,16 @@ function release() {
 		shell.rm("-rf", TEMPLATES_FILE, PARTIALS_FILE);
 	});
 	
-	
-	
-	shell.exec(`sass ${INP}/sass/style.scss:${OUT}/css/style.css --style=compressed --no-source-map`);
+	dirs(`${INP}/sass/`).forEach(i => {
+		if ( fs.existsSync(`${INP}/sass/${i}/style.scss`) ) {
+			shell.mkdir("-p", `${OUT}/css/${i}/`);
+			if (i === "common") {
+				shell.exec(`sass ${INP}/sass/common/style.scss:${OUT}/css/common/style.css --style=compressed --no-source-map`);
+			} else {
+				shell.exec(`sass ${INP}/sass/${i}/style.scss:${OUT}/css/${i}/style.css --style=compressed --no-source-map`);
+			}
+		}
+	});
 }
 
 function themeCss() {
