@@ -57,7 +57,7 @@ function writeHtml(env = "debug_hard") {
 	Object.keys(libs).forEach(k => {
 		const { css, js } = libs[k];
 		
-		if (env === "hard_debug") {
+		if (env === "debug") {
 			if ( Array.isArray(css) ) {
 				css.forEach(i => {
 					links += `<link rel="styleSheet" type="text/css" href="{{root}}lib/${k}/${i}" />\n`;
@@ -74,25 +74,15 @@ function writeHtml(env = "debug_hard") {
 		if (k !== "common") {
 			let appScripts = "";
 			
-			if (env === "hard_debug") {
+			if (env === "debug") {
 				appScripts += `<script type="text/javascript" src="{{root}}js/${k}/templates.js"></script>\n`;
 				appScripts += `<script type="text/javascript" src="{{root}}js/${k}/partials.js"></script>\n`;
 				appScripts += `<script data-main="{{root}}js/${k}/{{filename}}" src="{{root}}lib/common/requirejs/require.js"></script>`;
-			} else if (env === "normal_debug") {
-				
-			} else if (env === "light_debug") {
-				
-			} else if (env === "light_release") {
-				
-			} else if (env === "hard_release" || env === "static_release") {
-				links += `<link rel="styleSheet" type="text/css" href="{{root}}css/${k}/style.min.css" />\n`;
-				scripts += `<script type="text/javascript" src="{{root}}js/${k}/libs.min.js"></script>`;
-			} else if (env === "static_release") {
-				links += `<link rel="styleSheet" type="text/css" href="{{root}}css/${k}/style.min.css" />\n`;
-				scripts += `<script type="text/javascript" src="{{root}}js/${k}/libs.min.js"></script>`;
-				appScripts += `<script data-main="{{root}}js/${k}/{{filename}}" src="{{root}}lib/common/requirejs/require.js"></script>`;
+			} else if (env === "release") {
+				links = `<link rel="styleSheet" type="text/css" href="{{root}}css/${k}/style.min.css" />\n`;
+				scripts = `<script type="text/javascript" src="{{root}}js/${k}/libs.min.js"></script>`;
+				appScripts += `<script data-main="{{root}}js/${k}/{{filename}}" src="{{root}}lib/common/requirejs/require.min.js"></script>`;
 			}
-			
 			
 			fs.writeFileSync(`${INP}/html/${k}/links/main.handlebars`, links +
 				`<link rel="styleSheet" type="text/css" href="{{root}}css/${k}/style.css" />`);
