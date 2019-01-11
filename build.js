@@ -41,11 +41,6 @@ function libs() {
 			});
 		}
 	});
-	
-	Object.keys(libs).forEach(k => {
-		let prop = libs[k];
-	});
-	
 };
 
 function writeHtml(env = "debug") {
@@ -141,11 +136,11 @@ function debug() {
 	// should make dirs beforehand for handlebars (it works after babel , but not before since babel makes dirs)
 	dirs(`${INP}/templates/`).forEach(i => {
 		if (i === "common") {
-			shell.exec(`handlebars ${INP}/templates/common/template/ -f ${OUT}/js/common/templates.js -e hbs -m -o`);
-			shell.exec(`handlebars ${INP}/templates/common/partial/ -f ${OUT}/js/common/partials.js -p -e hbs -m -o`);
+			shell.exec(`handlebars ${INP}/templates/common/template/ -f ${OUT}/js/common/templates.js -e hbs -o`); // -m
+			shell.exec(`handlebars ${INP}/templates/common/partial/ -f ${OUT}/js/common/partials.js -p -e hbs -o`);
 		} else {
-			shell.exec(`handlebars ${INP}/templates/${i}/template/ -f ${OUT}/js/${i}/templates.js -e hbs -m -o`);
-			shell.exec(`handlebars ${INP}/templates/${i}/partial/ -f ${OUT}/js/${i}/partials.js -p -e hbs -m -o`);
+			shell.exec(`handlebars ${INP}/templates/${i}/template/ -f ${OUT}/js/${i}/templates.js -e hbs -o`);
+			shell.exec(`handlebars ${INP}/templates/${i}/partial/ -f ${OUT}/js/${i}/partials.js -p -e hbs -o`);
 		}
 	});
 	
