@@ -12,11 +12,9 @@ gulp.task("temp", shell.task([ t ]));
 gulp.task("part", shell.task([ p ]));
 
 gulp.task("temp-w", () => {
-	// gulp.start("temp");
 	gulp.watch( `./src/templates/${cwp}/template/**`, {ignoreInitial: false}, gulp.series("temp") );
 });
 gulp.task("part-w", () => {
-	// gulp.start("part");
 	gulp.watch( `./src/templates/${cwp}/partial/**`, {ignoreInitial: false}, gulp.series("part") );
 });
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
