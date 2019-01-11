@@ -43,14 +43,8 @@ gulp.task("live-js", cb => {
 });
 gulp.task("live", () => {
 	livereload.listen();
-	
-	/* gulp.watch(h, ["live-html"]);
-	gulp.watch(c, ["live-css"]);
-	gulp.watch(j, ["live-js"]); */
-	
 	gulp.watch( h, gulp.series("live-html") );
 	gulp.watch( c, gulp.series("live-css") );
 	gulp.watch( j, gulp.series("live-js") );
-	
 });
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

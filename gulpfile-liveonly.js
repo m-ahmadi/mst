@@ -4,23 +4,26 @@ const h = "./index.html";
 const c = "./css/**/*.css";
 const j = "./js/**/*.js";
 
-gulp.task("live-html", () => {
+gulp.task("live-html", cb => {
 	gulp.src(h)
 		.pipe( livereload() );
+	cb();
 });
-gulp.task("live-css", () => {
+gulp.task("live-css", cb => {
 	gulp.src(c)
 		.pipe( livereload() );
+	cb();
 });
-gulp.task("live-js", () => {
+gulp.task("live-js", cb => {
 	gulp.src(j)
 		.pipe( livereload() );
+	cb();
 });
 gulp.task("live", () => {
 	livereload.listen();
 	
-	gulp.watch(h, ["live-html"]);
-	gulp.watch(c, ["live-css"]);
-	gulp.watch(j, ["live-js"]);
+	gulp.watch(h, gulp.series("live-html"));
+	gulp.watch(c, gulp.series("live-css"));
+	gulp.watch(j, gulp.series("live-js"));
 });
 gulp.task("default", ["live"]);
