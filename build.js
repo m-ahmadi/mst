@@ -242,7 +242,7 @@ function release() {
 function themeCss() {
 	shell.rm("-f", "./dist/lib/uikit-rtl.css");
 	shell.cd("./src/theme/");
-	shell.exec("sass site.scss:theme.css");
+	shell.exec("sass site.scss:theme.css --no-source-map");
 	shell.exec("rtlcss theme.css ../../dist/lib/common/uikit-rtl.css");
 	shell.rm("-f", "theme.css");
 	shell.cd("../../");
