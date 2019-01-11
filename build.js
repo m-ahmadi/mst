@@ -198,19 +198,19 @@ function release() {
 	
 	dirs(`${INP}/js/`).forEach(i => {
 		if (i !== "common") {
-			const dir = `${OUT}/js/${i}/`;
-			const file = `${OUT}/js/${FL}`;
-			const file2 = `${OUT}/js/${i}/${FL}`;
+			const DIR = `${OUT}/js/${i}/`;
+			const FILE = `${OUT}/js/${FL}`;
+			const FILE2 = `${OUT}/js/${i}/${FL}`;
 			
 			shell.exec(`babel ${INP}/js/common/ -d ${OUT}/js/common/ --minified`);
-			shell.exec(`babel ${INP}/js/${i}/ -d ${dir}`);
-			shell.exec(`r_js -o baseUrl=${dir} name=main out=${file} optimize=uglify`); // optimize=none uglify
-			shell.rm("-rf", dir);
+			shell.exec(`babel ${INP}/js/${i}/ -d ${DIR}`);
+			shell.exec(`r_js -o baseUrl=${DIR} name=main out=${FILE} optimize=uglify`); // optimize=none uglify
+			shell.rm("-rf", DIR);
 			shell.rm("-rf", `${OUT}/js/common/`);
 			// shell.cp("-r", `${INP}/js/${i}/workers/`, `${OUT}/js/${i}/`);
 			shell.exec(`babel ${INP}/js/${i}/workers/ -d ${OUT}/js/${i}/workers/ --minified`); // --minified
-			shell.mv(file, `${OUT}/js/${i}/`);
-			fs.writeFileSync(file2, fs.readFileSync(file2, "utf-8")+'require(["main"]);'); // "\n"
+			shell.mv(FILE, `${OUT}/js/${i}/`);
+			fs.writeFileSync(FILE2, fs.readFileSync(FILE2, "utf-8")+'require(["main"]);'); // "\n"
 		}
 	});
 	
