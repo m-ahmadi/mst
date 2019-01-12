@@ -1,3 +1,3 @@
 @echo off
 call wset.bat
-cmd /c babel %INP%/js/ -d %OUT%/js/ -s -w
+cmd /c babel %INP%/js/%CWP%/ -d %OUT%/js/%CWP%/ -s -w

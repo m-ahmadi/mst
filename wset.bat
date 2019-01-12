@@ -1,4 +1,5 @@
 @echo off
 PATH=%PATH%;./node_modules/.bin/
-set INP="./src"
-set OUT="./dist"
+set /p CWP=<cwp.txt
+set INP=./src
+set OUT=./dist

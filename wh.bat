@@ -1,3 +1,3 @@
 @echo off
 call wset.bat
-cmd /c htmlbilder %INP%/html/ -o %OUT%/index.html -w
+cmd /c htmlbilder %INP%/html/%CWP%/ -o %OUT%/%CWP%.html -w

@@ -105,7 +105,6 @@ function debug() {
 			fs.writeFileSync(`${INP}/html/${i}/scripts/root.htm`,         ROOT);
 			fs.writeFileSync(`${INP}/html/${i}/scripts/app/root.htm`,     ROOT);
 			fs.writeFileSync(`${INP}/html/${i}/scripts/app/filename.htm`, "main.js");
-			//shell.exec(`htmlbilder ${INP}/html/${i}/ -o ${OUT}/${i}.html`);
 			shell.exec(`htmlbilder ${INP}/html/${i}/ -o ${INP}/html/${i}.hbs`);
 		}
 	});

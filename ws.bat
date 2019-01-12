@@ -1,3 +1,3 @@
 @echo off
 call wset.bat
-cmd /c sass %INP%/sass/style.scss:%OUT%/css/style.css --style expanded --sourcemap=auto --watch
+cmd /c sass %INP%/sass/%CWP%/style.scss:%OUT%/css/%CWP%/style.css --watch
