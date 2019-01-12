@@ -52,14 +52,28 @@ gulp.task("html-w", () => {
 const t = `handlebars ./src/templates/${cwp}/template/ -f ./dist/js/${cwp}/templates.js -e hbs -o`;
 const p = `handlebars ./src/templates/${cwp}/partial/ -f ./dist/js/${cwp}/partials.js -p -e hbs -o`;
 
-gulp.task( "temp", gulpShell.task(t) );
-gulp.task( "part", gulpShell.task(p) );
+// gulp.task( "temp", gulpShell.task(t) );
+// gulp.task( "part", gulpShell.task(p) );
 
+gulp.task( "temp", cb => {
+	dirs(`${INP}/templates/`).forEach(i => {
+		shell.exec(`handlebars ${INP}/templates/${i}/template/ -f ${OUT}/js/${i}/templates.js -e hbs -o`);
+	});
+	cb();
+});
+
+gulp.task( "part", cb => {
+	dirs(`${INP}/templates/`).forEach(i => {
+		shell.exec(`handlebars ${INP}/templates/${i}/partial/ -f ${OUT}/js/${i}/partials.js -p -e hbs -o`);
+	});
+	cb();
+});
+	
 gulp.task("temp-w", () => {
-	gulp.watch( `./src/templates/${cwp}/template/**`, {ignoreInitial: false}, gulp.series("temp") );
+	gulp.watch( "./src/templates/**partial/", {ignoreInitial: false}, gulp.series("temp") );
 });
 gulp.task("part-w", () => {
-	gulp.watch( `./src/templates/${cwp}/partial/**`, {ignoreInitial: false}, gulp.series("part") );
+	gulp.watch( "../src/templates/**/*", {ignoreInitial: false}, gulp.series("part") );
 });
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // livereload

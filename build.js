@@ -156,7 +156,7 @@ function compileSass(env) {
 		if ( fs.existsSync(`${INP}/sass/${i}/style.scss`) ) {
 			shell.mkdir("-p", `${OUT}/css/${i}/`);
 			shell.exec(`sass ${INP}/sass/${i}/style.scss:${OUT}/css/${i}/style.css` +
-				(env === "release" ? "--style=compressed --no-source-map" : ""));
+				(env === "release" ? " --style=compressed --no-source-map" : ""));
 		}
 	});
 }
