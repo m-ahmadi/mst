@@ -8,19 +8,93 @@ const files = p => fs.readdirSync(p).filter( f => !fs.statSync(p+"/"+f).isDirect
 // console.log(process.argv);
 process.env.path += `${path.delimiter}./node_modules/.bin`;
 
+let INP = "./src";
+let OUT = "./dist";
+let ROOT = "";
+
 let args = process.argv.slice(3);
-if ( args.filter(i => i === "compile=debug")[0] ) {
-	debug();
-} else if ( args.filter(i => i === "compile=release")[0] ) {
-	release();
-}
 if ( args.includes("libs") ) libs();
+if ( args.includes("compile=debug") ) debug();
+if ( args.includes("compile=release") ) release();
+if ( args.includes("compile=html") ) compileHtml();
+
 
 // theme
-if ( args.includes("theme") ) { themeIcons(); themeCss(); }
-if ( args.filter(i => i === "theme=icons")[0] ) themeIcons();
-if ( args.filter(i => i === "theme=css")[0] ) themeCss();
+if ( args.includes("theme=css") ) themeCss();
+if ( args.includes("theme=icons") ) themeIcons();
 
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// main build processes
+
+function debug() {
+	shell.rm("-rf", OUT);
+	shell.mkdir("-p", OUT+"/css", OUT+"/js");
+	shell.cp("-r", INP+"/lib", INP+"/images", INP+"/fonts", OUT);
+	shell.mv(OUT+"/images/favicon.ico", OUT);
+	
+	fs.writeFileSync(INP+"/js/common/root.js", 'export default "";', "utf-8");
+	writeHtml("debug");
+	compileHtml(ROOT, "main.js", "build");
+	compileSass();
+	
+	dirs(`${INP}/js/`).forEach(i => {
+		shell.exec(`babel ${INP}/js/${i}/ -d ${OUT}/js/${i}/ -s`);
+	});
+	
+	// should make dirs beforehand for handlebars (it works after babel , but not before since babel makes dirs)
+	dirs(`${INP}/templates/`).forEach(i => {
+		shell.exec(`handlebars ${INP}/templates/${i}/template/ -f ${OUT}/js/${i}/templates.js -e hbs -o`);
+		shell.exec(`handlebars ${INP}/templates/${i}/partial/ -f ${OUT}/js/${i}/partials.js -p -e hbs -o`);
+	});
+}
+
+function release() {
+	INP = "./src";
+	OUT = "./release/static";
+	ROOT = "/static/";
+	const FL = "app.bundle.js";
+	
+	shell.rm("-rf", OUT);
+	shell.mkdir("-p", OUT+"/css", OUT+"/js");
+	shell.cp("-r", INP+"/lib", INP+"/images", INP+"/fonts", OUT);
+	shell.mv(OUT+"/images/favicon.ico", OUT);
+	
+	fs.writeFileSync(INP+"/js/common/root.js", "export default '${ROOT}';");
+	writeHtml("release");
+	compileHtml(ROOT, FL, "build");
+	compileSass("release");
+	
+	dirs(`${INP}/js/`).forEach(i => {
+		if (i !== "common") {
+			const DIR = `${OUT}/js/${i}/`;
+			const FILE = `${OUT}/js/${FL}`;
+			const FILE2 = `${OUT}/js/${i}/${FL}`;
+			
+			shell.exec(`babel ${INP}/js/common/ -d ${OUT}/js/common/ --minified`);
+			shell.exec(`babel ${INP}/js/${i}/ -d ${DIR}`);
+			shell.exec(`r_js -o baseUrl=${DIR} name=main out=${FILE} optimize=uglify`); // optimize=none uglify
+			shell.rm("-rf", DIR);
+			shell.rm("-rf", `${OUT}/js/common/`);
+			// shell.cp("-r", `${INP}/js/${i}/workers/`, `${OUT}/js/${i}/`);
+			shell.exec(`babel ${INP}/js/${i}/workers/ -d ${OUT}/js/${i}/workers/ --minified`); // --minified
+			shell.mv(FILE, `${OUT}/js/${i}/`);
+			fs.writeFileSync(FILE2, fs.readFileSync(FILE2, "utf-8")+'require(["main"]);'); // "\n"
+		}
+	});
+	
+	dirs(`${INP}/templates/`).forEach(i => {
+		const ensureDir = `${OUT}/js/${i}/`;
+		const TEMPLATES_FILE = `${OUT}/js/${i}/templates.tmp.js`;
+		const PARTIALS_FILE = `${OUT}/js/${i}/partials.tmp.js`;
+		
+		if ( !fs.existsSync(ensureDir) ) shell.mkdir("-p", ensureDir);
+		
+		shell.exec(`handlebars ${INP}/templates/${i}/template/ -f ${TEMPLATES_FILE} -e hbs -m -o`);
+		shell.exec(`handlebars ${INP}/templates/${i}/partial/ -f ${PARTIALS_FILE} -p -e hbs -m -o`);
+		fs.writeFileSync( `${OUT}/js/${i}/templates.js`, shell.cat(TEMPLATES_FILE, PARTIALS_FILE) );
+		shell.rm("-rf", TEMPLATES_FILE, PARTIALS_FILE);
+	});
+}
 
 function libs() {
 	const libs = require("./libs.js");
@@ -42,10 +116,53 @@ function libs() {
 		}
 	});
 };
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// helper functions
+
+function compileHtml(ROOT = "", FL = "main.js", env) {
+	dirs(`${INP}/html/`).forEach(i => {
+		if (i !== "LAYOUTS") {
+			if (env === "build") {
+				fs.writeFileSync(`${INP}/html/${i}/links/root.htm`,           ROOT);
+				fs.writeFileSync(`${INP}/html/${i}/scripts/root.htm`,         ROOT);
+				fs.writeFileSync(`${INP}/html/${i}/scripts/app/root.htm`,     ROOT);
+				fs.writeFileSync(`${INP}/html/${i}/scripts/app/filename.htm`, FL);
+			}
+			shell.exec(`htmlbilder ${INP}/html/${i}/ -o ${INP}/html/${i}.hbs`);
+		}
+	});
+	
+	const layouts = {};
+	dirs(`${INP}/html/LAYOUTS/`).forEach(i => {
+		const FILE = `${INP}/html/LAYOUTS/${i}.hbs`;
+		shell.exec(`htmlbilder ${INP}/html/LAYOUTS/${i}/ -o ${FILE}`);
+		layouts[ i.split(".")[0] ] = fs.readFileSync(FILE, "utf-8");
+		fs.unlinkSync(FILE);
+	});
+	files(`${INP}/html/`).forEach(i => {
+		if ( i.endsWith(".hbs") ) {
+			let str = fs.readFileSync(`${INP}/html/${i}`, "utf-8");
+			str = str.replace(/@@@/g, "{{{");
+			str = str.replace(/%%%/g, "}}}");
+			const template = Handlebars.compile(str);
+			fs.writeFileSync( `${OUT}/${i.split(".")[0]}.html`, indent.html(template(layouts), {tabString: "  "}) );
+			fs.unlinkSync(`${INP}/html/${i}`);
+		}
+	});
+}
+
+function compileSass(env) {
+	dirs(`${INP}/sass/`).forEach(i => {
+		if ( fs.existsSync(`${INP}/sass/${i}/style.scss`) ) {
+			shell.mkdir("-p", `${OUT}/css/${i}/`);
+			shell.exec(`sass ${INP}/sass/${i}/style.scss:${OUT}/css/${i}/style.css` +
+				(env === "release" ? "--style=compressed --no-source-map" : ""));
+		}
+	});
+}
 
 function writeHtml(env = "debug") {
 	const libs = require("./libs.js");
-	const INP = "./src";
 	let links = "";
 	let scripts = "";
 	
@@ -85,158 +202,8 @@ function writeHtml(env = "debug") {
 		}
 	});
 }
-
-function debug() {
-	const INP = "./src";
-	const OUT = "./dist";
-	const ROOT = "";
-	
-	shell.rm("-rf", OUT);
-	shell.mkdir("-p", OUT+"/css", OUT+"/js");
-	shell.cp("-r", INP+"/lib", INP+"/images", INP+"/fonts", OUT);
-	shell.mv(OUT+"/images/favicon.ico", OUT);
-	
-	fs.writeFileSync(INP+"/js/common/root.js", 'export default "";', "utf-8");
-	writeHtml("debug");
-	
-	dirs(`${INP}/html/`).forEach(i => {
-		if (i !== "LAYOUTS") {
-			fs.writeFileSync(`${INP}/html/${i}/links/root.htm`,           ROOT);
-			fs.writeFileSync(`${INP}/html/${i}/scripts/root.htm`,         ROOT);
-			fs.writeFileSync(`${INP}/html/${i}/scripts/app/root.htm`,     ROOT);
-			fs.writeFileSync(`${INP}/html/${i}/scripts/app/filename.htm`, "main.js");
-			shell.exec(`htmlbilder ${INP}/html/${i}/ -o ${INP}/html/${i}.hbs`);
-		}
-	});
-	
-	const layouts = {};
-	files(`${INP}/html/LAYOUTS/`).forEach(i => {
-	layouts[ i.split(".")[0] ] = fs.readFileSync(`${INP}/html/LAYOUTS/${i}`, "utf-8");
-	});
-	files(`${INP}/html/`).forEach(i => {
-		if ( i.endsWith(".hbs") ) {
-			let str = fs.readFileSync(`${INP}/html/${i}`, "utf-8");
-			str = str.replace(/@@@/g, "{{{");
-			str = str.replace(/%%%/g, "}}}");
-			const template = Handlebars.compile(str);
-			fs.writeFileSync( `${OUT}/${i.split(".")[0]}.html`, indent.html(template(layouts), {tabString: "  "}) );
-			fs.unlinkSync(`${INP}/html/${i}`);
-		}
-	});
-	
-	dirs(`${INP}/js/`).forEach(i => {
-		if (i === "common") {
-			shell.exec(`babel ${INP}/js/common/ -d ${OUT}/js/common/ -s`);
-		} else {
-			shell.exec(`babel ${INP}/js/${i}/ -d ${OUT}/js/${i}/ -s`);
-		}
-	});
-	
-	// should make dirs beforehand for handlebars (it works after babel , but not before since babel makes dirs)
-	dirs(`${INP}/templates/`).forEach(i => {
-		if (i === "common") {
-			shell.exec(`handlebars ${INP}/templates/common/template/ -f ${OUT}/js/common/templates.js -e hbs -o`); // -m
-			shell.exec(`handlebars ${INP}/templates/common/partial/ -f ${OUT}/js/common/partials.js -p -e hbs -o`);
-		} else {
-			shell.exec(`handlebars ${INP}/templates/${i}/template/ -f ${OUT}/js/${i}/templates.js -e hbs -o`);
-			shell.exec(`handlebars ${INP}/templates/${i}/partial/ -f ${OUT}/js/${i}/partials.js -p -e hbs -o`);
-		}
-	});
-	
-	dirs(`${INP}/sass/`).forEach(i => {
-		if ( fs.existsSync(`${INP}/sass/${i}/style.scss`) ) {
-			shell.mkdir("-p", `${OUT}/css/${i}/`);
-			if (i === "common") {
-				shell.exec(`sass ${INP}/sass/common/style.scss:${OUT}/css/common/style.css`);
-			} else {
-				shell.exec(`sass ${INP}/sass/${i}/style.scss:${OUT}/css/${i}/style.css`);
-			}
-		}
-	});
-	
-}
-
-function release() {
-	const INP = "./src";
-	const OUT = "./release/static";
-	const ROOT = "/static/";
-	const FL = "app.bundle.js";
-	
-	shell.rm("-rf", OUT);
-	shell.mkdir("-p", OUT+"/css", OUT+"/js");
-	shell.cp("-r", INP+"/lib", INP+"/images", INP+"/fonts", OUT);
-	shell.mv(OUT+"/images/favicon.ico", OUT);
-	
-	fs.writeFileSync(INP+"/js/common/root.js", "export default '${ROOT}';");
-	writeHtml("release");
-	
-	dirs(`${INP}/html/`).forEach(i => {
-		if (i !== "LAYOUTS") {
-			fs.writeFileSync(`${INP}/html/${i}/links/root.htm`,           ROOT);
-			fs.writeFileSync(`${INP}/html/${i}/scripts/root.htm`,         ROOT);
-			fs.writeFileSync(`${INP}/html/${i}/scripts/app/root.htm`,     ROOT);
-			fs.writeFileSync(`${INP}/html/${i}/scripts/app/filename.htm`, FL);
-			shell.exec(`htmlbilder ${INP}/html/${i}/ -o ${INP}/html/${i}.hbs`);
-		}
-	});
-	
-	const layouts = {};
-	files(`${INP}/html/LAYOUTS/`).forEach(i => {
-		layouts[ i.split(".")[0] ] = fs.readFileSync(`${INP}/html/LAYOUTS/${i}`, "utf-8");
-	});
-	files(`${INP}/html/`).forEach(i => {
-		if ( i.endsWith(".hbs") ) {
-			let str = fs.readFileSync(`${INP}/html/${i}`, "utf-8");
-			str = str.replace(/@@@/g, "{{{");
-			str = str.replace(/%%%/g, "}}}");
-			const template = Handlebars.compile(str);
-			fs.writeFileSync( `./release/${i.split(".")[0]}.html`, indent.html(template(layouts), {tabString: "  "}) );
-			fs.unlinkSync(`${INP}/html/${i}`);
-		}
-	});
-	
-	dirs(`${INP}/js/`).forEach(i => {
-		if (i !== "common") {
-			const DIR = `${OUT}/js/${i}/`;
-			const FILE = `${OUT}/js/${FL}`;
-			const FILE2 = `${OUT}/js/${i}/${FL}`;
-			
-			shell.exec(`babel ${INP}/js/common/ -d ${OUT}/js/common/ --minified`);
-			shell.exec(`babel ${INP}/js/${i}/ -d ${DIR}`);
-			shell.exec(`r_js -o baseUrl=${DIR} name=main out=${FILE} optimize=uglify`); // optimize=none uglify
-			shell.rm("-rf", DIR);
-			shell.rm("-rf", `${OUT}/js/common/`);
-			// shell.cp("-r", `${INP}/js/${i}/workers/`, `${OUT}/js/${i}/`);
-			shell.exec(`babel ${INP}/js/${i}/workers/ -d ${OUT}/js/${i}/workers/ --minified`); // --minified
-			shell.mv(FILE, `${OUT}/js/${i}/`);
-			fs.writeFileSync(FILE2, fs.readFileSync(FILE2, "utf-8")+'require(["main"]);'); // "\n"
-		}
-	});
-	
-	dirs(`${INP}/templates/`).forEach(i => {
-		const ensureDir = `${OUT}/js/${i}/`;
-		const TEMPLATES_FILE = `${OUT}/js/${i}/templates.tmp.js`;
-		const PARTIALS_FILE = `${OUT}/js/${i}/partials.tmp.js`;
-		
-		if ( !fs.existsSync(ensureDir) ) shell.mkdir("-p", ensureDir);
-		
-		shell.exec(`handlebars ${INP}/templates/${i}/template/ -f ${TEMPLATES_FILE} -e hbs -m -o`);
-		shell.exec(`handlebars ${INP}/templates/${i}/partial/ -f ${PARTIALS_FILE} -p -e hbs -m -o`);
-		fs.writeFileSync( `${OUT}/js/${i}/templates.js`, shell.cat(TEMPLATES_FILE, PARTIALS_FILE) );
-		shell.rm("-rf", TEMPLATES_FILE, PARTIALS_FILE);
-	});
-	
-	dirs(`${INP}/sass/`).forEach(i => {
-		if ( fs.existsSync(`${INP}/sass/${i}/style.scss`) ) {
-			shell.mkdir("-p", `${OUT}/css/${i}/`);
-			if (i === "common") {
-				shell.exec(`sass ${INP}/sass/common/style.scss:${OUT}/css/common/style.css --style=compressed --no-source-map`);
-			} else {
-				shell.exec(`sass ${INP}/sass/${i}/style.scss:${OUT}/css/${i}/style.css --style=compressed --no-source-map`);
-			}
-		}
-	});
-}
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// theme construction
 
 function themeCss() {
 	shell.rm("-f", "./dist/lib/uikit-rtl.css");
@@ -259,3 +226,4 @@ function themeIcons() {
 	shell.cd("../");
 	shell.cp("-f", "./dist/lib/common/uikit-icons.js", "./uk/dist/js/");
 }
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
