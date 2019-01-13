@@ -1,13 +1,16 @@
 module.exports = {
 	common: {
 		css: [
-			"byekan-fontface.css"
+			"byekan-fontface.css",
+			"uikit-rtl.css"
 		],
 		js: [
+			"jquery/dist/jquery.js",
+			"handlebars/dist/handlebars.runtime.js",
 			"util-ma/util-ma.js",
 			"pubsub-ma/pubsub-ma.js",
-			"handlebars/dist/handlebars.runtime.js",
-			"jquery/dist/jquery.js",
+			"uikit.js",
+			"uikit-icons.js",
 		],
 		toCopy: [
 			"requirejs",
