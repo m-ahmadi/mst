@@ -1,7 +1,7 @@
 const fs = require("fs");
 const gulp = require("gulp");
 const shell = require("gulp-shell");
-const CWP = fs.readFileSync("CWP.txt", "utf-8"); // current working page
+const CWP = fs.readFileSync("cwp.txt", "utf-8"); // current working page
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // watching templates
 const t = `handlebars ./src/templates/${CWP}/template/ -f ./dist/js/${CWP}/templates.js -e hbs -o`;
