@@ -5,14 +5,14 @@ const Handlebars = require("handlebars");
 const indent = require("indent.js");
 const dirs = p => fs.readdirSync(p).filter( f => fs.statSync(p+"/"+f).isDirectory() );
 const files = p => fs.readdirSync(p).filter( f => !fs.statSync(p+"/"+f).isDirectory() );
-// console.log(process.argv);
+//console.log(process.argv);
 process.env.path += `${path.delimiter}./node_modules/.bin`;
 
 let INP = "./src";
 let OUT = "./dist";
 let ROOT = "";
 
-let args = process.argv.slice(3);
+const args = process.argv.slice(2);
 if ( args.includes("libs") ) libs();
 if ( args.includes("compile=debug") ) debug();
 if ( args.includes("compile=release") ) release();
