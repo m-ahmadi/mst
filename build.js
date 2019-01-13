@@ -16,8 +16,6 @@ const args = process.argv.slice(2);
 if ( args.includes("libs") ) libs();
 if ( args.includes("compile=debug") ) debug();
 if ( args.includes("compile=release") ) release();
-if ( args.includes("compile=html") ) compileHtml();
-
 
 // theme
 if ( args.includes("theme=css") ) themeCss();
@@ -121,33 +119,13 @@ function libs() {
 
 function compileHtml(ROOT = "", FL = "main.js", env) {
 	dirs(`${INP}/html/`).forEach(i => {
-		if (i !== "LAYOUTS") {
-			if (env === "build") {
-				fs.writeFileSync(`${INP}/html/${i}/links/root.htm`,           ROOT);
-				fs.writeFileSync(`${INP}/html/${i}/scripts/root.htm`,         ROOT);
-				fs.writeFileSync(`${INP}/html/${i}/scripts/app/root.htm`,     ROOT);
-				fs.writeFileSync(`${INP}/html/${i}/scripts/app/filename.htm`, FL);
-			}
-			shell.exec(`htmlbilder ${INP}/html/${i}/ -o ${INP}/html/${i}.hbs`);
+		if (env === "build") {
+			fs.writeFileSync(`${INP}/html/${i}/links/root.htm`,           ROOT);
+			fs.writeFileSync(`${INP}/html/${i}/scripts/root.htm`,         ROOT);
+			fs.writeFileSync(`${INP}/html/${i}/scripts/app/root.htm`,     ROOT);
+			fs.writeFileSync(`${INP}/html/${i}/scripts/app/filename.htm`, FL);
 		}
-	});
-	
-	const layouts = {};
-	dirs(`${INP}/html/LAYOUTS/`).forEach(i => {
-		const FILE = `${INP}/html/LAYOUTS/${i}.hbs`;
-		shell.exec(`htmlbilder ${INP}/html/LAYOUTS/${i}/ -o ${FILE}`);
-		layouts[ i.split(".")[0] ] = fs.readFileSync(FILE, "utf-8");
-		fs.unlinkSync(FILE);
-	});
-	files(`${INP}/html/`).forEach(i => {
-		if ( i.endsWith(".hbs") ) {
-			let str = fs.readFileSync(`${INP}/html/${i}`, "utf-8");
-			str = str.replace(/@@@/g, "{{{");
-			str = str.replace(/%%%/g, "}}}");
-			const template = Handlebars.compile(str);
-			fs.writeFileSync( `${OUT}/${i.split(".")[0]}.html`, indent.html(template(layouts), {tabString: "  "}) );
-			fs.unlinkSync(`${INP}/html/${i}`);
-		}
+		shell.exec(`htmlbilder ${INP}/html/${i}/ -o ${OUT}/${i}.html`);
 	});
 }
 
