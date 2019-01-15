@@ -2,8 +2,9 @@
 @import "../../lib/common/materialize-css/sass/components/color-classes";
 
 body {
-	width: 50%;
+	width: 100%;
 	margin: 0 auto;
-	font: 'BYekan', Tahoma, "Helvetica Neue", Helvetica, Arial, sans-serif;
-	// direction: rtl;
+	// font: BYekan, Tahoma, BNazanin, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+	direction: rtl;
 }
+@import "header";
