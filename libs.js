@@ -2,7 +2,8 @@ module.exports = {
 	common: {
 		css: [
 			"byekan-fontface.css",
-			"uikit-rtl.css"
+			"uikit-rtl.css",
+			"fontawesome-free/css/all.css"
 		],
 		js: [
 			"jquery/dist/jquery.js",
@@ -11,6 +12,7 @@ module.exports = {
 			"pubsub-ma/pubsub-ma.js",
 			"uikit.js",
 			"uikit-icons.js",
+			"ionicons/dist/ionicons.js"
 		],
 		toCopy: [
 			"requirejs",
@@ -18,7 +20,9 @@ module.exports = {
 			"jquery",
 			"util-ma",
 			"pubsub-ma",
-			"materialize-css"
+			"materialize-css",
+			"@fortawesome/fontawesome-free",
+			"ionicons"
 		]	
 	},
 	index: {css: [], js: [], toCopy: []},

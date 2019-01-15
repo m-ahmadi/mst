@@ -1,4 +1,10 @@
 #header {
 	padding: 1rem 1rem;
-	background: orange;
+	// background: #ce0042;
+	
+	background: #cc0040;
+	background: -moz-linear-gradient(top, #cc0040 0%, #ce0042 100%);
+	background: -webkit-linear-gradient(top, #cc0040 0%,#ce0042 100%);
+	background: linear-gradient(to bottom, #cc0040 0%,#ce0042 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#cc0040', endColorstr='#ce0042',GradientType=0 );
 }
