@@ -15,7 +15,7 @@ if ( args.includes("libs") ) libs();
 if ( args.includes("compile=debug") ) debug();
 if ( args.includes("compile=release") ) release();
 
-if ( args.includes("writeHtml") ) writeHtml();
+if ( args.includes("deps") ) writeHtml();
 if ( args.includes("compile=html") ) compileHtml();
 if ( args.includes("compile=sass") ) compileSass();
 if ( args.includes("compile=js") ) compileJs();
@@ -47,8 +47,6 @@ function setConfig(env) {
 function debug() {
 	cleanupAndInit();
 	
-	
-	
 	writeHtml();
 	compileHtml();
 	compileSass();
@@ -61,8 +59,6 @@ function release() {
 	setConfig("release");
 	
 	cleanupAndInit();
-	
-	
 	
 	writeHtml();
 	compileHtml();
