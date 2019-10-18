@@ -1,16 +1,16 @@
 const presets = [
   [
-    "@babel/env",
+    '@babel/env',
     {
       targets: {
 				browsers: [
-					"> 0.2%",
-					"last 6 versions",
-					"not dead"
+					'> 0.2%',
+					'last 6 versions',
+					'not dead'
 				]
       },
-      useBuiltIns: "usage",
-			modules: "amd",
+      useBuiltIns: 'usage',
+			modules: 'amd',
 			loose: false
     },
   ],
@@ -18,5 +18,5 @@ const presets = [
 
 module.exports = {
 	presets,
-	ignore: ["@*.js"]
+	ignore: ['@*.js']
 };

@@ -1,7 +1,7 @@
 require.config({
-	baseUrl: "js/",
+	baseUrl: 'js/',
 	paths: {
-		common: "../common",
-		lib: "../../lib"
+		common: '../common',
+		lib: '../../lib'
 	}
 });
