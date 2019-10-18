@@ -1,9 +1,9 @@
-const path = require('path');
 const fs = require('fs');
+const { join, delimiter } = require('path');
 const shell = require('shelljs');
-const dirs = p => fs.readdirSync(p).filter( f => fs.statSync(p+'/'+f).isDirectory() );
-const files = p => fs.readdirSync(p).filter( f => !fs.statSync(p+'/'+f).isDirectory() );
-process.env.path += `${path.delimiter}./node_modules/.bin`;
+const dirs = p => fs.readdirSync(p).filter( f => fs.statSync(join(p, f)).isDirectory() );
+const files = p => fs.readdirSync(p).filter( f => !fs.statSync(join(p, f)).isDirectory() );
+process.env.path += `${delimiter}./node_modules/.bin`;
 
 let INP, OUT, ROOT, FLN;
 setConfig('debug'); // default env
