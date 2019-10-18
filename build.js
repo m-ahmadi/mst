@@ -1,5 +1,5 @@
 const path = require('path');
-const fs = require('fs-extra');
+const fs = require('fs');
 const shell = require('shelljs');
 const dirs = p => fs.readdirSync(p).filter( f => fs.statSync(p+'/'+f).isDirectory() );
 const files = p => fs.readdirSync(p).filter( f => !fs.statSync(p+'/'+f).isDirectory() );

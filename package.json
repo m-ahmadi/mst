@@ -24,7 +24,6 @@
     "@babel/cli": "latest",
     "@babel/core": "latest",
     "@babel/preset-env": "latest",
-    "fs-extra": "latest",
     "gulp": "latest",
     "gulp-cli": "latest",
     "gulp-livereload": "latest",
