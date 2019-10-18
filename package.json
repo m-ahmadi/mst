@@ -30,7 +30,6 @@
     "gulp-livereload": "latest",
     "gulp-shell": "latest",
     "htmlbilder": "latest",
-    "indent.js": "latest",
     "rtlcss": "latest",
     "sass": "latest",
     "shelljs": "latest"
