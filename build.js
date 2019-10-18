@@ -1,8 +1,6 @@
 const path = require('path');
 const fs = require('fs-extra');
 const shell = require('shelljs');
-const Handlebars = require('handlebars');
-const indent = require('indent.js');
 const dirs = p => fs.readdirSync(p).filter( f => fs.statSync(p+'/'+f).isDirectory() );
 const files = p => fs.readdirSync(p).filter( f => !fs.statSync(p+'/'+f).isDirectory() );
 process.env.path += `${path.delimiter}./node_modules/.bin`;
@@ -142,7 +140,7 @@ function compileJs(env) {
 				// shell.cp('-r', `${INP}/js/${i}/workers/`, `${OUT}/js/${i}/`);
 				shell.exec(`babel ${INP}/js/${i}/workers/ -d ${OUT}/js/${i}/workers/ --minified`); // --minified
 				shell.mv(FILE, `${OUT}/js/${i}/`);
-				fs.writeFileSync(FILE2, fs.readFileSync(FILE2, 'utf-8')+"require(['main']);"); // '\n'
+				fs.writeFileSync(FILE2, fs.readFileSync(FILE2, 'utf8')+"require(['main']);"); // '\n'
 			}
 		});
 	}
