@@ -2,7 +2,7 @@ const fs = require('fs');
 const gulp = require('gulp');
 const shell = require('gulp-shell');
 const CWP = fs.readFileSync('cwp.txt', 'utf-8'); // current working page
-//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // watching templates
 const t = `handlebars ./src/templates/${CWP}/template/ -f ./dist/js/${CWP}/templates.js -e hbs -o`;
 const p = `handlebars ./src/templates/${CWP}/partial/ -f ./dist/js/${CWP}/partials.js -p -e hbs -o`;
@@ -23,7 +23,7 @@ gulp.task('part-w', () => {
 gulp.task('ctemps-w', () => {
 	gulp.watch( `./src/templates/common/**/*.hbs`, {ignoreInitial: false}, gulp.series('ctemps') );
 });	
-//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // livereload
 const livereload = require('gulp-livereload');
 const h = `./dist/${CWP}.html`;
@@ -51,4 +51,4 @@ gulp.task('live', () => {
 	gulp.watch( c, gulp.series('live-css') );
 	gulp.watch( j, gulp.series('live-js') );
 });
-//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
