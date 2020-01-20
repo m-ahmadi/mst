@@ -176,7 +176,7 @@ function writeHtml(env = 'debug') {
 	Object.keys(libs).forEach(k => {
 		const { css, js } = libs[k];
 		
-		if (env === 'debug") {
+		if (env === 'debug') {
 			if ( Array.isArray(css) ) {
 				css.forEach(i => {
 					links += `<link rel="styleSheet" type="text/css" href="{{root}}lib/${k}/${i}" />\n`;
